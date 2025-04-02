@@ -1,0 +1,6 @@
+applicationType: default
+defaultPackage: cctv.video.service
+testFramework: junit
+sourceLanguage: java
+buildTool: maven
+features: [amazon-api-gateway-http, app-name, arm, aws-lambda, aws-lambda-custom-runtime, aws-lambda-events-serde, aws-lambda-handler-apigateway-v2, graalvm, http-client-jdk, http-client-test, java, junit, logback, maven, maven-enforcer-plugin, micronaut-aot, micronaut-http-validation, properties, readme, serialization-jackson, shade, static-resources]
