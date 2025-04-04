@@ -7,7 +7,7 @@ import java.util.Map;
 @Controller
 public class HomeController {
 
-    @Get("hello")
+    @Get
     public Map<String, Object> index() {
         return Collections.singletonMap("message", "Hello World");
     }

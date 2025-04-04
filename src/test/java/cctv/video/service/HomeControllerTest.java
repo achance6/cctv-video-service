@@ -4,12 +4,17 @@ import io.micronaut.function.aws.proxy.payload2.APIGatewayV2HTTPEventFunction;
 import io.micronaut.function.aws.proxy.MockLambdaContext;
 import io.micronaut.http.HttpMethod;
 import io.micronaut.http.HttpStatus;
+import io.micronaut.serde.ObjectMapper;
+import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+@MicronautTest
 class HomeControllerTest {
     private static APIGatewayV2HTTPEventFunction handler;
 
@@ -23,14 +28,15 @@ class HomeControllerTest {
     }
 
     @Test
-    void testHandler() {
+    void testHandler(ObjectMapper objectMapper) throws IOException {
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
-                        .withPath("/hello")
+                        .withPath("/")
                         .withMethod(HttpMethod.GET.toString())
                         .build()
                 ).build());
+        System.out.println(objectMapper.writeValueAsString(request));
         var response = handler.handleRequest(request, new MockLambdaContext());
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
