@@ -32,13 +32,13 @@
 
   <dependencies>
     <dependency>
-      <groupId>io.micronaut</groupId>
-      <artifactId>micronaut-http-client-jdk</artifactId>
-      <scope>compile</scope>
+      <groupId>io.netty</groupId>
+      <artifactId>netty-buffer</artifactId>
+      <version>4.1.119.Final</version>
     </dependency>
     <dependency>
-      <groupId>io.micronaut.aws</groupId>
-      <artifactId>micronaut-aws-lambda-events-serde</artifactId>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-http-client-jdk</artifactId>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -49,17 +49,54 @@
     <dependency>
       <groupId>io.micronaut.aws</groupId>
       <artifactId>micronaut-function-aws-api-proxy-test</artifactId>
-      <scope>provided</scope>
+      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>io.micronaut.aws</groupId>
-      <artifactId>micronaut-function-aws-custom-runtime</artifactId>
+      <artifactId>micronaut-function-aws</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut</groupId>
+      <artifactId>micronaut-jackson-databind</artifactId>
     </dependency>
     <dependency>
       <groupId>io.micronaut.serde</groupId>
       <artifactId>micronaut-serde-jackson</artifactId>
       <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.micronaut.aws</groupId>
+      <artifactId>micronaut-aws-lambda-events-serde</artifactId>
+      <scope>compile</scope>
+    </dependency>
+<!--    Exclude jackson databind, using micronaut serde-->
+    <dependency>
+      <groupId>io.micronaut.aws</groupId>
+      <artifactId>micronaut-aws-sdk-v2</artifactId>
+      <scope>compile</scope>
+    </dependency>
+<!--    Use micronaut JDK client (using JDK client) instead of apache or netty-->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>url-connection-client</artifactId>
+      <scope>compile</scope>
+    </dependency>
+<!--    Exclude unneeded HTTP clients-->
+    <dependency>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>dynamodb</artifactId>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>netty-nio-client</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>software.amazon.awssdk</groupId>
+          <artifactId>apache-client</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>ch.qos.logback</groupId>

@@ -9,13 +9,19 @@ import io.micronaut.test.extensions.junit5.annotation.MicronautTest;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
 class HomeControllerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HomeControllerTest.class);
     private static APIGatewayV2HTTPEventFunction handler;
 
     @BeforeAll
@@ -28,7 +34,7 @@ class HomeControllerTest {
     }
 
     @Test
-    void testHandler(ObjectMapper objectMapper) throws IOException {
+    void testHandler() {
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
@@ -36,10 +42,30 @@ class HomeControllerTest {
                         .withMethod(HttpMethod.GET.toString())
                         .build()
                 ).build());
-        System.out.println(objectMapper.writeValueAsString(request));
+
         var response = handler.handleRequest(request, new MockLambdaContext());
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertEquals("{\"message\":\"Hello World\"}",  response.getBody());
+    }
+
+    @Test
+    void testVideoPost(ObjectMapper objectMapper) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video")
+                        .withMethod(HttpMethod.POST.toString())
+                        .build()
+                ).build());
+
+        Video video = new Video(UUID.randomUUID().toString(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2").toString(), (new Date()).toString(), "John Fortnite");
+        request.setBody(objectMapper.writeValueAsString(video));
+        LOGGER.info("Sending test request {}", request);
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+        assertEquals(HttpStatus.CREATED.name(),  response.getBody());
     }
 }
