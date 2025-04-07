@@ -7,7 +7,7 @@ import java.util.Date;
 import java.util.List;
 
 @Serdeable
-public record Video(String uuid, String title, String description, String tags, String creationDate,
+public record Video(UUID uuid, String title, String description, List<String> tags, Date creationDate,
                     String uploader) {
 
 }

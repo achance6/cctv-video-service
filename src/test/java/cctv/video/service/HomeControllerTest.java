@@ -59,7 +59,7 @@ class HomeControllerTest {
                         .build()
                 ).build());
 
-        Video video = new Video(UUID.randomUUID().toString(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2").toString(), (new Date()).toString(), "John Fortnite");
+        Video video = new Video(UUID.randomUUID(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), (new Date()), "John Fortnite");
         request.setBody(objectMapper.writeValueAsString(video));
         LOGGER.info("Sending test request {}", request);
 
