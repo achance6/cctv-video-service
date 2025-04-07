@@ -1,7 +1,9 @@
 package cctv.video.service;
+
+import cctv.video.service.domain.Video;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
-import io.micronaut.function.aws.proxy.payload2.APIGatewayV2HTTPEventFunction;
 import io.micronaut.function.aws.proxy.MockLambdaContext;
+import io.micronaut.function.aws.proxy.payload2.APIGatewayV2HTTPEventFunction;
 import io.micronaut.http.HttpMethod;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.serde.ObjectMapper;
@@ -20,8 +22,8 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @MicronautTest
-class HomeControllerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HomeControllerTest.class);
+class VideoControllerTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoControllerTest.class);
     private static APIGatewayV2HTTPEventFunction handler;
 
     @BeforeAll

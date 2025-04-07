@@ -1,4 +1,6 @@
-package cctv.video.service;
+package cctv.video.service.controller;
+
+import cctv.video.service.domain.Video;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.Body;
 import io.micronaut.http.annotation.Controller;
@@ -11,20 +13,19 @@ import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
 import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-@Controller
-public class HomeController {
-    private static final Logger LOGGER = LoggerFactory.getLogger(HomeController.class);
+@Controller("/video")
+public class VideoController {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoController.class);
 
     @Get
-    public Map<String, Object> index() {
-        return Collections.singletonMap("message", "Hello World");
+    public String getVideo() {
+        return "";
     }
 
-    @Post("/video")
+    @Post
     public String storeVideo(@Body Video video) {
         LOGGER.info("Received /video request with video: {}", video);
         Map<String, AttributeValue> item = new HashMap<>();
