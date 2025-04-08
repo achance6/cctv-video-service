@@ -15,7 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -89,7 +89,7 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-        Video video = new Video(UUID.randomUUID(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), (new Date()), "John Fortnite");
+        Video video = new Video(UUID.randomUUID(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite");
         request.setBody(objectMapper.writeValueAsString(video));
         LOGGER.info("Sending testVideoPost request {}", request);
 
