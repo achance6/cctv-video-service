@@ -18,12 +18,12 @@ public class VideoService {
 
     private static Map<String, AttributeValue> createItem(Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
-        item.put("id", AttributeValue.builder().s(video.uuid().toString()).build());
-        item.put("title", AttributeValue.builder().s(video.title()).build());
-        item.put("description", AttributeValue.builder().s(video.description()).build());
-        item.put("tags", AttributeValue.builder().ss(video.tags()).build());
-        item.put("create-date", AttributeValue.builder().s(video.creationDate().toString()).build());
-        item.put("uploader", AttributeValue.builder().s(video.uploader()).build());
+        item.put("VideoId", AttributeValue.builder().s(video.uuid().toString()).build());
+        item.put("Title", AttributeValue.builder().s(video.title()).build());
+        item.put("Description", AttributeValue.builder().s(video.description()).build());
+        item.put("Tags", AttributeValue.builder().ss(video.tags()).build());
+        item.put("CreationDateTime", AttributeValue.builder().s(video.creationDate().toString()).build());
+        item.put("Uploader", AttributeValue.builder().s(video.uploader()).build());
         return item;
     }
 
