@@ -2,14 +2,14 @@ package cctv.video.service.controller;
 
 import cctv.video.service.domain.Video;
 import cctv.video.service.service.VideoService;
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.http.HttpStatus;
-import io.micronaut.http.annotation.Body;
-import io.micronaut.http.annotation.Controller;
-import io.micronaut.http.annotation.Get;
-import io.micronaut.http.annotation.Post;
+import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.UUID;
 
 @Controller("/video")
 public class VideoController {
@@ -22,9 +22,10 @@ public class VideoController {
         this.videoService = videoService;
     }
 
-    @Get
-    public String getVideo() {
-        return "";
+    @Get("/{videoId}")
+    public Video getVideo(@PathVariable @NonNull String videoId) {
+        LOGGER.info("Received /video GET request with videoId {}", videoId);
+        return videoService.getVideo(UUID.fromString(videoId));
     }
 
     @Post

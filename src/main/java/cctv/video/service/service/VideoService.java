@@ -5,12 +5,12 @@ import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
-import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
-import software.amazon.awssdk.services.dynamodb.model.PutItemRequest;
-import software.amazon.awssdk.services.dynamodb.model.PutItemResponse;
+import software.amazon.awssdk.services.dynamodb.model.*;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @Singleton
 public class VideoService {
@@ -36,9 +36,29 @@ public class VideoService {
                 .build();
 
         try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
-            PutItemResponse result = dynamoDbClient.putItem(request);
-            LOGGER.info("Response from DynamoDB putItem: {}", result);
+            PutItemResponse response = dynamoDbClient.putItem(request);
+            LOGGER.info("Response from DynamoDB putItem: {}", response);
         }
+    }
 
+    public Video getVideo(UUID videoId) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("VideoId", AttributeValue.fromS(videoId.toString()));
+
+        GetItemRequest request = GetItemRequest.builder()
+                .tableName("CctvVideo")
+                .key(item)
+                .build();
+
+        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
+            GetItemResponse response = dynamoDbClient.getItem(request);
+            LOGGER.info("Response from DynamoDB getItem: {}", response);
+            if (!response.hasItem()) {
+                return null;
+            }
+            var videoItem = response.item();
+
+            return new Video(UUID.fromString(videoItem.get("VideoId").s()), videoItem.get("Title").s(), videoItem.get("Description").s(), videoItem.get("Tags").ss(), LocalDateTime.parse(videoItem.get("CreationDateTime").s()), videoItem.get("Uploader").s());
+        }
     }
 }
