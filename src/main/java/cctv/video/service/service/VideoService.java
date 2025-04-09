@@ -31,7 +31,7 @@ public class VideoService {
         Map<String, AttributeValue> item = createItem(video);
 
         PutItemRequest request = PutItemRequest.builder()
-                .tableName("cctv-video-data")
+                .tableName("CctvVideo")
                 .item(item)
                 .build();
 
