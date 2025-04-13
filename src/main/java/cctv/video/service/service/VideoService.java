@@ -15,6 +15,7 @@ import java.util.UUID;
 @Singleton
 public class VideoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
+    public static final String DYNAMODB_TABLE_NAME = "CctvVideo";
 
     private static Map<String, AttributeValue> createItem(Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
@@ -31,7 +32,7 @@ public class VideoService {
         Map<String, AttributeValue> item = createItem(video);
 
         PutItemRequest request = PutItemRequest.builder()
-                .tableName("CctvVideo")
+                .tableName(DYNAMODB_TABLE_NAME)
                 .item(item)
                 .build();
 
@@ -46,7 +47,7 @@ public class VideoService {
         item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
         GetItemRequest request = GetItemRequest.builder()
-                .tableName("CctvVideo")
+                .tableName(DYNAMODB_TABLE_NAME)
                 .key(item)
                 .build();
 
