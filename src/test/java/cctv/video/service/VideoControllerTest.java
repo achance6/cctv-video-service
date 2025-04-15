@@ -56,7 +56,7 @@ class VideoControllerTest {
 
     @Test
     void testVideoGet(ObjectMapper objectMapper) throws IOException {
-        UUID uuid = UUID.fromString("d02a9b70-75c0-4f26-9054-5f3cea0d869c");
+        UUID uuid = UUID.fromString("a69da49a-66ff-4275-8df5-be51bee10084");
 
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
@@ -66,8 +66,6 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-
-
         HashMap<String, String> pathParameters = new HashMap<>();
         pathParameters.put("videoId", uuid.toString());
         request.setPathParameters(pathParameters);
@@ -76,7 +74,7 @@ class VideoControllerTest {
         var response = handler.handleRequest(request, new MockLambdaContext());
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-        assertTrue(response.getBody().contains("2025-04-09T16:06:48.085666"));
+        assertTrue(response.getBody().contains("2025-04-13T21:00:57.596"));
 
         Video video = objectMapper.readValue(response.getBody(), Video.class);
         LOGGER.info("Received testVideoGet response {}", objectMapper.writeValueAsString(video));
