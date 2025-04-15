@@ -9,6 +9,7 @@ import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Set;
 import java.util.UUID;
 
 @Controller("/video")
@@ -26,6 +27,12 @@ public class VideoController {
     public Video getVideo(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
         return videoService.getVideo(UUID.fromString(videoId));
+    }
+
+    @Get("/videos")
+    public Set<Video> getVideos() {
+        LOGGER.info("Received /video/videos GET request");
+        return videoService.getVideos();
     }
 
     @Post

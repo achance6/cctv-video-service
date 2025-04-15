@@ -8,9 +8,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Singleton
 public class VideoService {
@@ -59,7 +57,38 @@ public class VideoService {
             }
             var videoItem = response.item();
 
-            return new Video(UUID.fromString(videoItem.get("VideoId").s()), videoItem.get("Title").s(), videoItem.get("Description").s(), videoItem.get("Tags").ss(), LocalDateTime.parse(videoItem.get("CreationDateTime").s()), videoItem.get("Uploader").s());
+            return mapDynamoDbItemToVideo(videoItem);
         }
     }
+
+    public Set<Video> getVideos() {
+        Set<Video> videos = new HashSet<>();
+
+        ScanRequest scanRequest = ScanRequest.builder()
+                .tableName(DYNAMODB_TABLE_NAME)
+                .build();
+
+        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
+            ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
+            LOGGER.info("Response from DynamoDB scan: {}", scanResponse);
+
+            for (Map<String, AttributeValue> item : scanResponse.items()) {
+                videos.add(mapDynamoDbItemToVideo(item));
+            }
+        }
+
+        return videos;
+    }
+
+    private Video mapDynamoDbItemToVideo(Map<String, AttributeValue> item) {
+        return new Video(
+                UUID.fromString(item.get("VideoId").s()),
+                item.get("Title").s(),
+                item.get("Description").s(),
+                item.get("Tags").ss(),
+                LocalDateTime.parse(item.get("CreationDateTime").s()),
+                item.get("Uploader").s()
+        );
+    }
+
 }

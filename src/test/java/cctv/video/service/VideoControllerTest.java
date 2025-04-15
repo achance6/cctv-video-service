@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -99,5 +100,27 @@ class VideoControllerTest {
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertEquals(HttpStatus.CREATED.name(),  response.getBody());
+    }
+
+    @Test
+    void testVideosGet(ObjectMapper objectMapper) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/videos")
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+        LOGGER.info("Sending testVideosGet request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+
+        var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
+        Set<Video> videos = Set.of(videosArray);
+        LOGGER.info("Received response from getVideos: {}", videos);
+        assertTrue(videos.size() > 4);
     }
 }
