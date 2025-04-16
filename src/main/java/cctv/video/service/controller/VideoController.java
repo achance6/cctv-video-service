@@ -6,7 +6,6 @@ import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
-import jakarta.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,7 +18,6 @@ public class VideoController {
 
     private final VideoService videoService;
 
-    @Inject
     public VideoController(VideoService videoService) {
         this.videoService = videoService;
     }
