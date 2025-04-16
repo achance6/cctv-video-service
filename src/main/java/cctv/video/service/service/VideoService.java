@@ -1,6 +1,7 @@
 package cctv.video.service.service;
 
 import cctv.video.service.domain.Video;
+import io.micronaut.core.annotation.Nullable;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,8 +13,8 @@ import java.util.*;
 
 @Singleton
 public class VideoService {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
     public static final String DYNAMODB_TABLE_NAME = "CctvVideo";
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
 
     private static Map<String, AttributeValue> createItem(Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
@@ -61,12 +62,19 @@ public class VideoService {
         }
     }
 
-    public Set<Video> getVideos() {
+    public Set<Video> getVideos(@Nullable String uploader) {
         Set<Video> videos = new HashSet<>();
 
-        ScanRequest scanRequest = ScanRequest.builder()
-                .tableName(DYNAMODB_TABLE_NAME)
-                .build();
+        ScanRequest.Builder scanRequestBuilder = ScanRequest.builder().tableName(DYNAMODB_TABLE_NAME);
+        ScanRequest scanRequest;
+        if (uploader == null || uploader.isBlank()) {
+            scanRequest = scanRequestBuilder.build();
+        } else {
+            scanRequest = scanRequestBuilder
+                    .filterExpression("Uploader = :uploader")
+                    .expressionAttributeValues(Map.of(":uploader", AttributeValue.fromS(uploader)))
+                    .build();
+        }
 
         try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
             ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);

@@ -3,6 +3,7 @@ package cctv.video.service.controller;
 import cctv.video.service.domain.Video;
 import cctv.video.service.service.VideoService;
 import io.micronaut.core.annotation.NonNull;
+import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import jakarta.inject.Inject;
@@ -30,9 +31,9 @@ public class VideoController {
     }
 
     @Get("/videos")
-    public Set<Video> getVideos() {
+    public Set<Video> getVideos(@QueryValue @Nullable String uploader) {
         LOGGER.info("Received /video/videos GET request");
-        return videoService.getVideos();
+        return videoService.getVideos(uploader);
     }
 
     @Post

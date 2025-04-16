@@ -16,10 +16,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -105,7 +102,7 @@ class VideoControllerTest {
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
-                        .withPath("/video/videos")
+                        .withPath("/video/videos/")
                         .withMethod(HttpMethod.GET.toString())
                         .build()
                 ).build());
@@ -120,5 +117,59 @@ class VideoControllerTest {
         Set<Video> videos = Set.of(videosArray);
         LOGGER.info("Received response from getVideos: {}", videos);
         assertTrue(videos.size() > 4);
+    }
+
+    @Test
+    void testVideosGetWithUploader(ObjectMapper objectMapper) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/videos")
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("uploader", "ayden.chance");
+
+        request.setQueryStringParameters(queryParams);
+
+        LOGGER.info("Sending testVideosGetWithUploader request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+
+        var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
+        Set<Video> videos = Set.of(videosArray);
+        LOGGER.info("Received response from getVideos using uploader: {}", videos);
+        assertTrue(videos.size() > 4);
+    }
+
+    @Test
+    void testVideosGetWithBadUploader(ObjectMapper objectMapper) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/videos")
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+        Map<String, String> queryParams = new HashMap<>();
+        queryParams.put("uploader", "a");
+        request.setQueryStringParameters(queryParams);
+
+        LOGGER.info("Sending testVideosGetWithBadUploader request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+
+        var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
+        Set<Video> videos = Set.of(videosArray);
+        LOGGER.info("Received response from getVideos using bad uploader: {}", videos);
+        assertTrue(videos.isEmpty());
     }
 }
