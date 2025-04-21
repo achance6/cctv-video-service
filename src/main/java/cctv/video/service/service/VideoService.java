@@ -1,6 +1,7 @@
 package cctv.video.service.service;
 
 import cctv.video.service.domain.Video;
+import cctv.video.service.mapper.VideoMapper;
 import io.micronaut.core.annotation.Nullable;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -8,13 +9,17 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Singleton
 public class VideoService {
-    public static final String DYNAMODB_TABLE_NAME = "CctvVideo";
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
+    private static final String DYNAMODB_TABLE_NAME = "CctvVideo";
+    private final VideoMapper videoMapper;
+
+    public VideoService(VideoMapper videoMapper) {
+        this.videoMapper = videoMapper;
+    }
 
     private static Map<String, AttributeValue> createItem(Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
@@ -58,7 +63,7 @@ public class VideoService {
             }
             var videoItem = response.item();
 
-            return mapDynamoDbItemToVideo(videoItem);
+            return videoMapper.mapDynamoDbItemToVideo(videoItem);
         }
     }
 
@@ -81,22 +86,11 @@ public class VideoService {
             LOGGER.info("Response from DynamoDB scan: {}", scanResponse);
 
             for (Map<String, AttributeValue> item : scanResponse.items()) {
-                videos.add(mapDynamoDbItemToVideo(item));
+                videos.add(videoMapper.mapDynamoDbItemToVideo(item));
             }
         }
 
         return videos;
-    }
-
-    private Video mapDynamoDbItemToVideo(Map<String, AttributeValue> item) {
-        return new Video(
-                UUID.fromString(item.get("VideoId").s()),
-                item.get("Title").s(),
-                item.get("Description").s(),
-                item.get("Tags").ss(),
-                LocalDateTime.parse(item.get("CreationDateTime").s()),
-                item.get("Uploader").s()
-        );
     }
 
 }
