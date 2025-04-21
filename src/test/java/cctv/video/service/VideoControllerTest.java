@@ -87,14 +87,15 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-        Video video = new Video(UUID.randomUUID(), "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite");
+        var uuid = UUID.randomUUID();
+        Video video = new Video(uuid, "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite");
         request.setBody(objectMapper.writeValueAsString(video));
         LOGGER.info("Sending testVideoPost request {}", request);
 
         var response = handler.handleRequest(request, new MockLambdaContext());
 
-        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-        assertEquals(HttpStatus.CREATED.name(),  response.getBody());
+        assertEquals(HttpStatus.CREATED.getCode(), response.getStatusCode());
+        assertTrue(response.getBody().contains(uuid.toString()));
     }
 
     @Test
@@ -111,11 +112,11 @@ class VideoControllerTest {
 
         var response = handler.handleRequest(request, new MockLambdaContext());
 
-        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-
         var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
         Set<Video> videos = Set.of(videosArray);
         LOGGER.info("Received response from getVideos: {}", videos);
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertTrue(videos.size() > 4);
     }
 
@@ -139,11 +140,11 @@ class VideoControllerTest {
 
         var response = handler.handleRequest(request, new MockLambdaContext());
 
-        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-
         var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
         Set<Video> videos = Set.of(videosArray);
         LOGGER.info("Received response from getVideos using uploader: {}", videos);
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertTrue(videos.size() > 4);
     }
 
@@ -165,11 +166,12 @@ class VideoControllerTest {
 
         var response = handler.handleRequest(request, new MockLambdaContext());
 
-        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-
         var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
         Set<Video> videos = Set.of(videosArray);
         LOGGER.info("Received response from getVideos using bad uploader: {}", videos);
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+
         assertTrue(videos.isEmpty());
     }
 }

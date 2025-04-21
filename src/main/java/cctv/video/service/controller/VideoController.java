@@ -4,7 +4,7 @@ import cctv.video.service.domain.Video;
 import cctv.video.service.service.VideoService;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
-import io.micronaut.http.HttpStatus;
+import io.micronaut.http.HttpResponse;
 import io.micronaut.http.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,26 +23,26 @@ public class VideoController {
     }
 
     @Get("/{videoId}")
-    public Video getVideo(@PathVariable @NonNull String videoId) {
+    public HttpResponse<Video> getVideo(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
-        return videoService.getVideo(UUID.fromString(videoId));
+        return HttpResponse.ok(videoService.getVideo(UUID.fromString(videoId)));
     }
 
     @Get("/videos")
-    public Set<Video> getVideos(@QueryValue @Nullable String uploader) {
+    public HttpResponse<Set<Video>> getVideos(@QueryValue @Nullable String uploader) {
         LOGGER.info("Received /video/videos GET request");
-        return videoService.getVideos(uploader);
+        return HttpResponse.ok(videoService.getVideos(uploader));
     }
 
     @Post
-    public String storeVideo(@Body Video video) {
+    public HttpResponse<Video> storeVideo(@Body Video video) {
         LOGGER.info("Received /video request with video: {}", video);
         try {
             videoService.storeVideo(video);
         } catch (Exception e) {
             LOGGER.error("Error in storeVideo :: ", e);
-            return HttpStatus.INTERNAL_SERVER_ERROR.name();
+            return HttpResponse.serverError();
         }
-        return HttpStatus.CREATED.name();
+        return HttpResponse.created(video);
     }
 }
