@@ -6,10 +6,12 @@ import io.micronaut.core.annotation.Nullable;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.http.SdkHttpResponse;
 import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
+
 
 @Singleton
 public class VideoService {
@@ -93,4 +95,19 @@ public class VideoService {
         return videos;
     }
 
+    public SdkHttpResponse deleteVideo(UUID videoId) {
+        Map<String, AttributeValue> item = new HashMap<>();
+        item.put("VideoId", AttributeValue.fromS(videoId.toString()));
+
+        DeleteItemRequest deleteItemRequest = DeleteItemRequest.builder()
+                .tableName(DYNAMODB_TABLE_NAME)
+                .key(item)
+                .build();
+
+        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
+            DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
+            LOGGER.info("Response from DynamoDB delete: {}", deleteItemResponse);
+            return deleteItemResponse.sdkHttpResponse();
+        }
+    }
 }

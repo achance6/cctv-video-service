@@ -25,13 +25,27 @@ public class VideoController {
     @Get("/{videoId}")
     public HttpResponse<Video> getVideo(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
-        return HttpResponse.ok(videoService.getVideo(UUID.fromString(videoId)));
+        var video = videoService.getVideo(UUID.fromString(videoId));
+        return HttpResponse.ok(video);
+    }
+
+    @Delete("/{videoId}")
+    public HttpResponse<String> deleteVideo(@PathVariable @NonNull String videoId) {
+        LOGGER.info("Received /video DELETE request with videoId {}", videoId);
+        var sdkHttpResponse = videoService.deleteVideo(UUID.fromString(videoId));
+        if (sdkHttpResponse.isSuccessful()) {
+            return HttpResponse.ok("Video with id " + videoId + " deleted");
+        } else {
+            return HttpResponse.serverError(sdkHttpResponse.toString());
+        }
+
     }
 
     @Get("/videos")
     public HttpResponse<Set<Video>> getVideos(@QueryValue @Nullable String uploader) {
         LOGGER.info("Received /video/videos GET request");
-        return HttpResponse.ok(videoService.getVideos(uploader));
+        var videos = videoService.getVideos(uploader);
+        return HttpResponse.ok(videos);
     }
 
     @Post

@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 @MicronautTest
 class VideoControllerTest {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoControllerTest.class);
+    private static final UUID uuid = UUID.randomUUID();
     private static APIGatewayV2HTTPEventFunction handler;
 
     @BeforeAll
@@ -78,7 +79,8 @@ class VideoControllerTest {
     }
 
     @Test
-    void testVideoPost(ObjectMapper objectMapper) throws IOException {
+    void testVideoPostAndDelete(ObjectMapper objectMapper) throws IOException {
+        // Create resource
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
@@ -87,7 +89,6 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-        var uuid = UUID.randomUUID();
         Video video = new Video(uuid, "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite");
         request.setBody(objectMapper.writeValueAsString(video));
         LOGGER.info("Sending testVideoPost request {}", request);
@@ -96,6 +97,19 @@ class VideoControllerTest {
 
         assertEquals(HttpStatus.CREATED.getCode(), response.getStatusCode());
         assertTrue(response.getBody().contains(uuid.toString()));
+
+        // Delete created resource
+        request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/" + uuid)
+                        .withMethod(HttpMethod.DELETE.toString())
+                        .build()
+                ).build());
+
+        response = handler.handleRequest(request, new MockLambdaContext());
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+        assertTrue(response.getBody().contains("deleted"));
     }
 
     @Test
