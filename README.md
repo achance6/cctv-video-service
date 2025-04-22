@@ -1,3 +1,93 @@
+# CCTV Video Service
+
+## 📹 Video API Documentation
+
+**Base URL:** `/video`
+
+---
+
+### GET `/video/{videoId}`
+
+**Description:**  
+Retrieve metadata of a single video by its ID.
+
+**Path Parameters:**
+
+- `videoId` (string, required): UUID of the video.
+
+**Responses:**
+
+- `200 OK`: Returns the video metadata.
+- `404 Not Found`: Video not found.
+- `500 Internal Server Error`: If retrieval fails.
+
+---
+
+### DELETE `/video/{videoId}`
+
+**Description:**  
+Delete a video by its ID.
+
+**Path Parameters:**
+
+- `videoId` (string, required): UUID of the video.
+
+**Responses:**
+
+- `200 OK`: Video successfully deleted.
+- `404 Not Found`: Video not found.
+- `500 Internal Server Error`: If the deletion fails.
+
+---
+
+### GET `/video/videos`
+
+**Description:**  
+Retrieve a set of videos. Optionally filter by uploader.
+
+**Query Parameters:**
+
+- `uploader` (string, optional): Filter videos by uploader name.
+
+**Responses:**
+
+- `200 OK`: Returns a set of video metadata.
+
+---
+
+### POST `/video`
+
+**Description:**  
+Store a new video.
+
+**Request Body:**
+
+- `Video` (JSON): The video object to store.
+
+**Responses:**
+
+- `201 Created`: Video stored successfully.
+- `500 Internal Server Error`: If storing fails.
+
+---
+
+## 📦 Example `Video` Schema
+
+```json
+{
+  "uuid": "123e4567-e89b-12d3-a456-426614174000",
+  "title": "Mall CCTV Footage",
+  "description": "Surveillance footage from the north entrance",
+  "tags": [
+    "security",
+    "entrance",
+    "night"
+  ],
+  "creationDate": "2025-04-22T14:30:00",
+  "uploader": "security_team"
+}
+```
+
 ## Micronaut 4.7.5 Documentation
 
 - [User Guide](https://docs.micronaut.io/4.7.5/guide/index.html)
