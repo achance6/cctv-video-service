@@ -5,6 +5,7 @@ import cctv.video.service.service.VideoService;
 import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
+import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,7 +27,11 @@ public class VideoController {
     public HttpResponse<Video> getVideo(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
         var video = videoService.getVideo(UUID.fromString(videoId));
-        return HttpResponse.ok(video);
+        if (video != null) {
+            return HttpResponse.ok(video);
+        } else {
+            return HttpResponse.notFound();
+        }
     }
 
     @Delete("/{videoId}")
@@ -35,10 +40,11 @@ public class VideoController {
         var sdkHttpResponse = videoService.deleteVideo(UUID.fromString(videoId));
         if (sdkHttpResponse.isSuccessful()) {
             return HttpResponse.ok("Video with id " + videoId + " deleted");
-        } else {
-            return HttpResponse.serverError(sdkHttpResponse.toString());
         }
-
+        if (sdkHttpResponse.statusCode() == HttpStatus.NOT_FOUND.getCode()) {
+            return HttpResponse.notFound();
+        }
+        return HttpResponse.serverError(sdkHttpResponse.toString());
     }
 
     @Get("/videos")
