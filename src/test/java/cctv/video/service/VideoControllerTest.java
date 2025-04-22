@@ -146,7 +146,7 @@ class VideoControllerTest {
 
 
         Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("uploader", "ayden.chance");
+        queryParams.put("uploader", "ayden.chance@rocketmail.com");
 
         request.setQueryStringParameters(queryParams);
 
