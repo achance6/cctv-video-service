@@ -11,6 +11,7 @@ import software.amazon.awssdk.services.dynamodb.DynamoDbClient;
 import software.amazon.awssdk.services.dynamodb.model.*;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Singleton
@@ -69,30 +70,37 @@ public class VideoService {
         }
     }
 
-    public Set<Video> getVideos(@Nullable String uploader) {
-        Set<Video> videos = new HashSet<>();
+    public Set<Video> getVideos(@Nullable String uploader, @Nullable String search) {
+        DynamoDbClient dynamoDb = DynamoDbClient.create();
 
-        ScanRequest.Builder scanRequestBuilder = ScanRequest.builder().tableName(DYNAMODB_TABLE_NAME);
-        ScanRequest scanRequest;
-        if (uploader == null || uploader.isBlank()) {
-            scanRequest = scanRequestBuilder.build();
-        } else {
-            scanRequest = scanRequestBuilder
-                    .filterExpression("Uploader = :uploader")
-                    .expressionAttributeValues(Map.of(":uploader", AttributeValue.fromS(uploader)))
-                    .build();
+        Map<String, AttributeValue> expressionValues = new HashMap<>();
+
+        ScanRequest.Builder scanRequestBuilder = ScanRequest.builder()
+                .tableName(DYNAMODB_TABLE_NAME);
+
+        boolean filtered = false;
+        if (uploader != null && !uploader.isBlank()) {
+            scanRequestBuilder.filterExpression("Uploader = :uploader");
+            expressionValues.put(":uploader", AttributeValue.fromS(uploader));
+            filtered = true;
+        }
+        if (search != null && !search.isBlank()) {
+            scanRequestBuilder.filterExpression("contains(Title,:search)");
+            expressionValues.put(":search", AttributeValue.fromS(search));
+            filtered = true;
+        }
+        if (filtered) {
+            scanRequestBuilder.expressionAttributeValues(expressionValues);
         }
 
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
-            ScanResponse scanResponse = dynamoDbClient.scan(scanRequest);
-            LOGGER.info("Response from DynamoDB scan: {}", scanResponse);
+        var scanRequest = scanRequestBuilder.build();
+        ScanResponse response = dynamoDb.scan(scanRequest);
 
-            for (Map<String, AttributeValue> item : scanResponse.items()) {
-                videos.add(videoMapper.mapDynamoDbItemToVideo(item));
-            }
-        }
+        List<Map<String, AttributeValue>> items = response.items();
 
-        return videos;
+        return items.stream()
+                .map(videoMapper::mapDynamoDbItemToVideo)
+                .collect(Collectors.toSet());
     }
 
     public SdkHttpResponse deleteVideo(UUID videoId) {

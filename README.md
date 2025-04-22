@@ -48,6 +48,7 @@ Retrieve a set of videos. Optionally filter by uploader.
 **Query Parameters:**
 
 - `uploader` (string, optional): Filter videos by uploader name.
+- `search` (string, optional): Filter videos by title containing search.
 
 **Responses:**
 

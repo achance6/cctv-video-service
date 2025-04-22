@@ -18,8 +18,7 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
 class VideoControllerTest {
@@ -172,20 +171,40 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-        Map<String, String> queryParams = new HashMap<>();
-        queryParams.put("uploader", "a");
+        Map<String, String> queryParams = Map.of("uploader", "a");
         request.setQueryStringParameters(queryParams);
 
         LOGGER.info("Sending testVideosGetWithBadUploader request");
 
         var response = handler.handleRequest(request, new MockLambdaContext());
+        LOGGER.info("Received response from getVideos using bad uploader: {}", response);
+
+        assertEquals(HttpStatus.NOT_FOUND.getCode(), response.getStatusCode());
+    }
+
+    @Test
+    void testVideosGetWithSearch(ObjectMapper objectMapper) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/videos")
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+        var queryParams = Map.of("search", "video");
+        request.setQueryStringParameters(queryParams);
+
+        LOGGER.info("Sending testVideosGetWithSearch request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
 
         var videosArray = objectMapper.readValue(response.getBody(), Video[].class);
         Set<Video> videos = Set.of(videosArray);
-        LOGGER.info("Received response from getVideos using bad uploader: {}", videos);
+        LOGGER.info("Received response from getVideos sent from testVideosGetWithSearch: {}", videos);
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
 
-        assertTrue(videos.isEmpty());
+        assertFalse(videos.isEmpty());
     }
 }

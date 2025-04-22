@@ -48,9 +48,15 @@ public class VideoController {
     }
 
     @Get("/videos")
-    public HttpResponse<Set<Video>> getVideos(@QueryValue @Nullable String uploader) {
+    public HttpResponse<Set<Video>> getVideos(
+            @QueryValue @Nullable String uploader,
+            @QueryValue @Nullable String search
+    ) {
         LOGGER.info("Received /video/videos GET request");
-        var videos = videoService.getVideos(uploader);
+        Set<Video> videos = videoService.getVideos(uploader, search);
+        if (videos.isEmpty()) {
+            return HttpResponse.notFound();
+        }
         return HttpResponse.ok(videos);
     }
 
