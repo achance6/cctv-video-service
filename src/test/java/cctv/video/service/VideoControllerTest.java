@@ -88,7 +88,7 @@ class VideoControllerTest {
                         .build()
                 ).build());
 
-        Video video = new Video(uuid, "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite");
+        Video video = new Video(uuid, "Test Video", "A Test Video.", List.of("testTag1", "testTag2"), LocalDateTime.now(), "John Fortnite", 10);
         request.setBody(objectMapper.writeValueAsString(video));
         LOGGER.info("Sending testVideoPost request {}", request);
 

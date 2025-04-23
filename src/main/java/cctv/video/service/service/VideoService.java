@@ -26,19 +26,8 @@ public class VideoService {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    private static Map<String, AttributeValue> createItem(Video video) {
-        Map<String, AttributeValue> item = new HashMap<>();
-        item.put("VideoId", AttributeValue.builder().s(video.uuid().toString()).build());
-        item.put("Title", AttributeValue.builder().s(video.title()).build());
-        item.put("Description", AttributeValue.builder().s(video.description()).build());
-        item.put("Tags", AttributeValue.builder().ss(video.tags()).build());
-        item.put("CreationDateTime", AttributeValue.builder().s(video.creationDate().toString()).build());
-        item.put("Uploader", AttributeValue.builder().s(video.uploader()).build());
-        return item;
-    }
-
     public void storeVideo(Video video) {
-        Map<String, AttributeValue> item = createItem(video);
+        Map<String, AttributeValue> item = videoMapper.mapVideoToDynamoDbItem(video);
 
         PutItemRequest request = PutItemRequest.builder()
                 .tableName(DYNAMODB_TABLE_NAME)

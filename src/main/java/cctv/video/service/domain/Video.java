@@ -9,9 +9,14 @@ import java.util.List;
 import java.util.UUID;
 
 @Serdeable
-public record Video(@NonNull UUID uuid, @NonNull String title, @Nullable String description,
-                    @Nullable List<String> tags,
-                    @NonNull LocalDateTime creationDate,
-                    @NonNull String uploader) {
+public record Video(
+        @NonNull UUID uuid,
+        @NonNull String title,
+        @Nullable String description,
+        @Nullable List<String> tags,
+        @NonNull LocalDateTime creationDate,
+        @NonNull String uploader,
+        @NonNull Integer viewCount
+) {
 
 }
