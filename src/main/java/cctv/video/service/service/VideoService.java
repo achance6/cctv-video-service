@@ -19,9 +19,11 @@ public class VideoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(VideoService.class);
     private static final String DYNAMODB_TABLE_NAME = "CctvVideo";
     private final VideoMapper videoMapper;
+    private final DynamoDbClient dynamoDbClient;
 
-    public VideoService(VideoMapper videoMapper) {
+    public VideoService(VideoMapper videoMapper, DynamoDbClient dynamoDbClient) {
         this.videoMapper = videoMapper;
+        this.dynamoDbClient = dynamoDbClient;
     }
 
     private static Map<String, AttributeValue> createItem(Video video) {
@@ -43,10 +45,8 @@ public class VideoService {
                 .item(item)
                 .build();
 
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
-            PutItemResponse response = dynamoDbClient.putItem(request);
-            LOGGER.info("Response from DynamoDB putItem: {}", response);
-        }
+        PutItemResponse response = dynamoDbClient.putItem(request);
+        LOGGER.info("Response from DynamoDB putItem: {}", response);
     }
 
     public Video getVideo(UUID videoId) {
@@ -58,20 +58,17 @@ public class VideoService {
                 .key(item)
                 .build();
 
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
-            GetItemResponse response = dynamoDbClient.getItem(request);
-            LOGGER.info("Response from DynamoDB getItem: {}", response);
-            if (!response.hasItem()) {
-                return null;
-            }
-            var videoItem = response.item();
-
-            return videoMapper.mapDynamoDbItemToVideo(videoItem);
+        GetItemResponse response = dynamoDbClient.getItem(request);
+        LOGGER.info("Response from DynamoDB getItem: {}", response);
+        if (!response.hasItem()) {
+            return null;
         }
+        var videoItem = response.item();
+
+        return videoMapper.mapDynamoDbItemToVideo(videoItem);
     }
 
     public Set<Video> getVideos(@Nullable String uploader, @Nullable String search) {
-        DynamoDbClient dynamoDb = DynamoDbClient.create();
 
         Map<String, AttributeValue> expressionValues = new HashMap<>();
 
@@ -94,7 +91,7 @@ public class VideoService {
         }
 
         var scanRequest = scanRequestBuilder.build();
-        ScanResponse response = dynamoDb.scan(scanRequest);
+        ScanResponse response = dynamoDbClient.scan(scanRequest);
 
         List<Map<String, AttributeValue>> items = response.items();
 
@@ -112,10 +109,8 @@ public class VideoService {
                 .key(item)
                 .build();
 
-        try (DynamoDbClient dynamoDbClient = DynamoDbClient.create()) {
-            DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
-            LOGGER.info("Response from DynamoDB delete: {}", deleteItemResponse);
-            return deleteItemResponse.sdkHttpResponse();
-        }
+        DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
+        LOGGER.info("Response from DynamoDB delete: {}", deleteItemResponse);
+        return deleteItemResponse.sdkHttpResponse();
     }
 }
