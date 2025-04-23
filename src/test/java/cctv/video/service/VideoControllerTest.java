@@ -162,7 +162,7 @@ class VideoControllerTest {
     }
 
     @Test
-    void testVideosGetWithBadUploader(ObjectMapper objectMapper) throws IOException {
+    void testVideosGetWithBadUploader() {
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
