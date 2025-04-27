@@ -237,7 +237,8 @@ class VideoControllerTest {
 
         var response = handler.handleRequest(request, new MockLambdaContext());
 
-        int viewsAfterIncrement = fetchTestVideo(objectMapper, videoId).viewCount();
+        var video = objectMapper.readValue(response.getBody(), Video.class);
+        int viewsAfterIncrement = video.viewCount();
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertEquals(viewsAfterIncrement, viewsBeforeIncrement + 1);

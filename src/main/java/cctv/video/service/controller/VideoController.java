@@ -72,14 +72,14 @@ public class VideoController {
     }
 
     @Post("/{videoId}/view")
-    public HttpResponse<String> incrementVideoView(@PathVariable @NonNull String videoId) {
+    public HttpResponse<Video> incrementVideoView(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /{videoId}/view POST request");
         try {
             var video = videoService.incrementVideoView(UUID.fromString(videoId));
             if (video.isEmpty()) {
                 return HttpResponse.notFound();
             }
-            return HttpResponse.ok();
+            return HttpResponse.ok(video.get());
         } catch (Exception e) {
             LOGGER.error("Error in /{videoId}/view POST request :: ", e);
             return HttpResponse.serverError();
