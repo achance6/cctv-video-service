@@ -27,11 +27,10 @@ public class VideoController {
     public HttpResponse<Video> getVideo(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
         var video = videoService.getVideo(UUID.fromString(videoId));
-        if (video != null) {
-            return HttpResponse.ok(video);
-        } else {
+        if (video.isEmpty()) {
             return HttpResponse.notFound();
         }
+        return HttpResponse.ok(video.get());
     }
 
     @Delete("/{videoId}")
@@ -76,11 +75,14 @@ public class VideoController {
     public HttpResponse<String> incrementVideoView(@PathVariable @NonNull String videoId) {
         LOGGER.info("Received /{videoId}/view POST request");
         try {
-            videoService.incrementVideoView(UUID.fromString(videoId));
+            var video = videoService.incrementVideoView(UUID.fromString(videoId));
+            if (video.isEmpty()) {
+                return HttpResponse.notFound();
+            }
+            return HttpResponse.ok();
         } catch (Exception e) {
             LOGGER.error("Error in /{videoId}/view POST request :: ", e);
             return HttpResponse.serverError();
         }
-        return HttpResponse.ok();
     }
 }

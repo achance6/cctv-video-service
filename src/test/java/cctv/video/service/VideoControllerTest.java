@@ -30,9 +30,23 @@ class VideoControllerTest {
     static void setupSpec() {
         handler = new APIGatewayV2HTTPEventFunction();
     }
+
     @AfterAll
     static void cleanupSpec() {
         handler.getApplicationContext().close();
+    }
+
+    private static Video fetchTestVideo(ObjectMapper objectMapper, UUID videoId) throws IOException {
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/%s".formatted(videoId))
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+        return objectMapper.readValue(response.getBody(), Video.class);
     }
 
     @Test
@@ -48,20 +62,7 @@ class VideoControllerTest {
         var response = handler.handleRequest(request, new MockLambdaContext());
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-        assertEquals("{\"message\":\"Hello World\"}",  response.getBody());
-    }
-
-    private static Video fetchTestVideo(ObjectMapper objectMapper, UUID videoId) throws IOException {
-        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
-        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
-                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
-                        .withPath("/video/%s".formatted(videoId))
-                        .withMethod(HttpMethod.GET.toString())
-                        .build()
-                ).build());
-
-        var response = handler.handleRequest(request, new MockLambdaContext());
-        return objectMapper.readValue(response.getBody(), Video.class);
+        assertEquals("{\"message\":\"Hello World\"}", response.getBody());
     }
 
     @Test
@@ -240,5 +241,24 @@ class VideoControllerTest {
 
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
         assertEquals(viewsAfterIncrement, viewsBeforeIncrement + 1);
+    }
+
+    @Test
+    void testVideoIncrementViewWithNonExistentId() {
+        UUID videoId = UUID.fromString("a69da49a-66ff-4275-8df5-be51bee10085");
+
+        var request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/%s/view".formatted(videoId))
+                        .withMethod(HttpMethod.POST.toString())
+                        .build()
+                ).build());
+
+        LOGGER.info("Sending testVideoIncrementViewWithNonExistentId request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.NOT_FOUND.getCode(), response.getStatusCode());
     }
 }

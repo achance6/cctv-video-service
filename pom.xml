@@ -70,7 +70,10 @@
       <artifactId>micronaut-aws-lambda-events-serde</artifactId>
       <scope>compile</scope>
     </dependency>
-<!--    Exclude jackson databind, using micronaut serde-->
+    <dependency>
+      <groupId>io.micronaut.validation</groupId>
+      <artifactId>micronaut-validation</artifactId>
+    </dependency>
     <dependency>
       <groupId>io.micronaut.aws</groupId>
       <artifactId>micronaut-aws-sdk-v2</artifactId>
@@ -155,6 +158,10 @@
                   <artifactId>micronaut-inject</artifactId>
                 </exclusion>
               </exclusions>
+            </path>
+            <path>
+              <groupId>io.micronaut.validation</groupId>
+              <artifactId>micronaut-validation-processor</artifactId>
             </path>
           </annotationProcessorPaths>
           <compilerArgs>

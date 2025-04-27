@@ -27,7 +27,7 @@ public class VideoService {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    public void storeVideo(Video video) {
+    public void storeVideo(@NonNull Video video) {
         Map<String, AttributeValue> item = videoMapper.mapVideoToDynamoDbItem(video);
 
         PutItemRequest request = PutItemRequest.builder()
@@ -39,7 +39,8 @@ public class VideoService {
         LOGGER.info("Response from DynamoDB putItem: {}", response);
     }
 
-    public Video getVideo(UUID videoId) {
+    @NonNull
+    public Optional<Video> getVideo(@NonNull UUID videoId) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
@@ -51,13 +52,14 @@ public class VideoService {
         GetItemResponse response = dynamoDbClient.getItem(request);
         LOGGER.info("Response from DynamoDB getItem: {}", response);
         if (!response.hasItem()) {
-            return null;
+            return Optional.empty();
         }
         var videoItem = response.item();
 
-        return videoMapper.mapDynamoDbItemToVideo(videoItem);
+        return Optional.of(videoMapper.mapDynamoDbItemToVideo(videoItem));
     }
 
+    @NonNull
     public Set<Video> getVideos(@Nullable String uploader, @Nullable String search) {
 
         Map<String, AttributeValue> expressionValues = new HashMap<>();
@@ -90,7 +92,8 @@ public class VideoService {
                 .collect(Collectors.toSet());
     }
 
-    public SdkHttpResponse deleteVideo(UUID videoId) {
+    @NonNull
+    public SdkHttpResponse deleteVideo(@NonNull UUID videoId) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("VideoId", AttributeValue.fromS(videoId.toString()));
 
@@ -104,10 +107,16 @@ public class VideoService {
         return deleteItemResponse.sdkHttpResponse();
     }
 
-    public void incrementVideoView(@NonNull UUID videoId) {
-        Video video = getVideo(videoId);
+    @NonNull
+    public Optional<Video> incrementVideoView(@NonNull UUID videoId) {
+        var videoOptional = getVideo(videoId);
+        if (videoOptional.isEmpty()) {
+            return Optional.empty();
+        }
+        var video = videoOptional.get();
         video = new Video(video.uuid(), video.title(), video.description(), video.tags(), video.creationDate(), video.uploader(),
                 video.viewCount() + 1);
         storeVideo(video);
+        return Optional.of(video);
     }
 }

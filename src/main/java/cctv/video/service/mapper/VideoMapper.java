@@ -1,7 +1,9 @@
 package cctv.video.service.mapper;
 
 import cctv.video.service.domain.Video;
+import io.micronaut.core.annotation.NonNull;
 import jakarta.inject.Singleton;
+import jakarta.validation.constraints.NotEmpty;
 import software.amazon.awssdk.services.dynamodb.model.AttributeValue;
 
 import java.time.LocalDateTime;
@@ -12,7 +14,8 @@ import java.util.UUID;
 @Singleton
 public class VideoMapper {
 
-    public Video mapDynamoDbItemToVideo(Map<String, AttributeValue> item) {
+    @NonNull
+    public Video mapDynamoDbItemToVideo(@NonNull @NotEmpty Map<String, AttributeValue> item) {
         return new Video(
                 UUID.fromString(item.get("VideoId").s()),
                 item.get("Title").s(),
