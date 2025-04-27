@@ -2,6 +2,7 @@ package cctv.video.service.service;
 
 import cctv.video.service.domain.Video;
 import cctv.video.service.mapper.VideoMapper;
+import io.micronaut.core.annotation.NonNull;
 import io.micronaut.core.annotation.Nullable;
 import jakarta.inject.Singleton;
 import org.slf4j.Logger;
@@ -101,5 +102,12 @@ public class VideoService {
         DeleteItemResponse deleteItemResponse = dynamoDbClient.deleteItem(deleteItemRequest);
         LOGGER.info("Response from DynamoDB delete: {}", deleteItemResponse);
         return deleteItemResponse.sdkHttpResponse();
+    }
+
+    public void incrementVideoView(@NonNull UUID videoId) {
+        Video video = getVideo(videoId);
+        video = new Video(video.uuid(), video.title(), video.description(), video.tags(), video.creationDate(), video.uploader(),
+                video.viewCount() + 1);
+        storeVideo(video);
     }
 }

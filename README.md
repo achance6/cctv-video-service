@@ -70,6 +70,21 @@ Store a new video.
 - `201 Created`: Video stored successfully.
 - `500 Internal Server Error`: If storing fails.
 
+### POST `/{videoId}/view`
+
+**Description:**  
+Increment the view count on a video
+
+**Request Body:**
+
+- empty
+
+**Responses:**
+
+- `200 Ok`: Video view incremented successfully
+- `404 Not Found`: Video not found
+- `500 Internal Server Error`: If storing fails.
+
 ---
 
 ## 📦 Example `Video` Schema

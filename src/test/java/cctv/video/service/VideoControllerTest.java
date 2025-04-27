@@ -51,30 +51,17 @@ class VideoControllerTest {
         assertEquals("{\"message\":\"Hello World\"}",  response.getBody());
     }
 
-    @Test
-    void testVideoGet(ObjectMapper objectMapper) throws IOException {
-        UUID uuid = UUID.fromString("a69da49a-66ff-4275-8df5-be51bee10084");
-
+    private static Video fetchTestVideo(ObjectMapper objectMapper, UUID videoId) throws IOException {
         APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
         request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
                 .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
-                        .withPath("/video/" + uuid)
+                        .withPath("/video/%s".formatted(videoId))
                         .withMethod(HttpMethod.GET.toString())
                         .build()
                 ).build());
 
-        HashMap<String, String> pathParameters = new HashMap<>();
-        pathParameters.put("videoId", uuid.toString());
-        request.setPathParameters(pathParameters);
-
-        LOGGER.info("Sending testVideoGet request {}", request);
         var response = handler.handleRequest(request, new MockLambdaContext());
-
-        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
-        assertTrue(response.getBody().contains("2025-04-13T21:00:57.596"));
-
-        Video video = objectMapper.readValue(response.getBody(), Video.class);
-        LOGGER.info("Received testVideoGet response {}", objectMapper.writeValueAsString(video));
+        return objectMapper.readValue(response.getBody(), Video.class);
     }
 
     @Test
@@ -206,5 +193,52 @@ class VideoControllerTest {
         assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
 
         assertFalse(videos.isEmpty());
+    }
+
+    @Test
+    void testVideoGet(ObjectMapper objectMapper) throws IOException {
+        UUID videoId = UUID.fromString("a69da49a-66ff-4275-8df5-be51bee10084");
+
+        APIGatewayV2HTTPEvent request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/%s".formatted(videoId))
+                        .withMethod(HttpMethod.GET.toString())
+                        .build()
+                ).build());
+
+
+        LOGGER.info("Sending testVideoGet request {}", request);
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+        assertTrue(response.getBody().contains("2025-04-13T21:00:57.596"));
+
+        Video video = objectMapper.readValue(response.getBody(), Video.class);
+        LOGGER.info("Received testVideoGet response {}", objectMapper.writeValueAsString(video));
+    }
+
+    @Test
+    void testVideoIncrementView(ObjectMapper objectMapper) throws IOException {
+        UUID videoId = UUID.fromString("a69da49a-66ff-4275-8df5-be51bee10084");
+
+        int viewsBeforeIncrement = fetchTestVideo(objectMapper, videoId).viewCount();
+
+        var request = new APIGatewayV2HTTPEvent();
+        request.setRequestContext(APIGatewayV2HTTPEvent.RequestContext.builder()
+                .withHttp(APIGatewayV2HTTPEvent.RequestContext.Http.builder()
+                        .withPath("/video/%s/view".formatted(videoId))
+                        .withMethod(HttpMethod.POST.toString())
+                        .build()
+                ).build());
+
+        LOGGER.info("Sending testVideosIncrementView request");
+
+        var response = handler.handleRequest(request, new MockLambdaContext());
+
+        int viewsAfterIncrement = fetchTestVideo(objectMapper, videoId).viewCount();
+
+        assertEquals(HttpStatus.OK.getCode(), response.getStatusCode());
+        assertEquals(viewsAfterIncrement, viewsBeforeIncrement + 1);
     }
 }

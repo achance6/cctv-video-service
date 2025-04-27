@@ -62,7 +62,7 @@ public class VideoController {
 
     @Post
     public HttpResponse<Video> storeVideo(@Body Video video) {
-        LOGGER.info("Received /video request with video: {}", video);
+        LOGGER.info("Received /video POST request with video: {}", video);
         try {
             videoService.storeVideo(video);
         } catch (Exception e) {
@@ -70,5 +70,17 @@ public class VideoController {
             return HttpResponse.serverError();
         }
         return HttpResponse.created(video);
+    }
+
+    @Post("/{videoId}/view")
+    public HttpResponse<String> incrementVideoView(@PathVariable @NonNull String videoId) {
+        LOGGER.info("Received /{videoId}/view POST request");
+        try {
+            videoService.incrementVideoView(UUID.fromString(videoId));
+        } catch (Exception e) {
+            LOGGER.error("Error in /{videoId}/view POST request :: ", e);
+            return HttpResponse.serverError();
+        }
+        return HttpResponse.ok();
     }
 }
