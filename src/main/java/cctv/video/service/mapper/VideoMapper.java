@@ -29,12 +29,12 @@ public class VideoMapper {
 
     public Map<String, AttributeValue> mapVideoToDynamoDbItem(Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
-        item.put("VideoId", AttributeValue.builder().s(video.videoId().toString()).build());
-        item.put("Title", AttributeValue.builder().s(video.title()).build());
-        item.put("Description", AttributeValue.builder().s(video.description()).build());
-        item.put("Tags", AttributeValue.builder().ss(video.tags()).build());
-        item.put("CreationDateTime", AttributeValue.builder().s(video.creationDateTime().toString()).build());
-        item.put("Uploader", AttributeValue.builder().s(video.uploader()).build());
+        item.put("VideoId", AttributeValue.fromS(video.videoId().toString()));
+        item.put("Title", AttributeValue.fromS(video.title()));
+        item.put("Description", AttributeValue.fromS(video.description()));
+        item.put("Tags", AttributeValue.fromSs(video.tags()));
+        item.put("CreationDateTime", AttributeValue.fromS(video.creationDateTime().toString()));
+        item.put("Uploader", AttributeValue.fromS(video.uploader()));
         item.put("ViewCount", AttributeValue.fromN(String.valueOf(video.viewCount())));
         return item;
     }
