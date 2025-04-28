@@ -1,12 +1,14 @@
 package cctv.video.service.controller;
 
+import cctv.video.service.constraints.NullOrNotBlank;
 import cctv.video.service.domain.Video;
 import cctv.video.service.service.VideoService;
 import io.micronaut.core.annotation.NonNull;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +26,7 @@ public class VideoController {
     }
 
     @Get("/{videoId}")
-    public HttpResponse<Video> getVideo(@PathVariable @NonNull String videoId) {
+    public HttpResponse<Video> getVideo(@PathVariable @NonNull @NotBlank String videoId) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
         var video = videoService.getVideo(UUID.fromString(videoId));
         if (video.isEmpty()) {
@@ -34,7 +36,7 @@ public class VideoController {
     }
 
     @Delete("/{videoId}")
-    public HttpResponse<String> deleteVideo(@PathVariable @NonNull String videoId) {
+    public HttpResponse<String> deleteVideo(@PathVariable @NonNull @NotBlank String videoId) {
         LOGGER.info("Received /video DELETE request with videoId {}", videoId);
         var sdkHttpResponse = videoService.deleteVideo(UUID.fromString(videoId));
         if (sdkHttpResponse.isSuccessful()) {
@@ -48,10 +50,10 @@ public class VideoController {
 
     @Get("/videos")
     public HttpResponse<Set<Video>> getVideos(
-            @QueryValue @Nullable String uploader,
-            @QueryValue @Nullable String search
+            @QueryValue @NullOrNotBlank String uploader,
+            @QueryValue @NullOrNotBlank String search
     ) {
-        LOGGER.info("Received /video/videos GET request");
+        LOGGER.info("Received /video/videos GET request with uploader: {} and search: {}", uploader, search);
         Set<Video> videos = videoService.getVideos(uploader, search);
         if (videos.isEmpty()) {
             return HttpResponse.notFound();
@@ -60,7 +62,7 @@ public class VideoController {
     }
 
     @Post
-    public HttpResponse<Video> storeVideo(@Body Video video) {
+    public HttpResponse<Video> storeVideo(@Valid @Body Video video) {
         LOGGER.info("Received /video POST request with video: {}", video);
         try {
             videoService.storeVideo(video);
@@ -72,7 +74,7 @@ public class VideoController {
     }
 
     @Post("/{videoId}/view")
-    public HttpResponse<Video> incrementVideoView(@PathVariable @NonNull String videoId) {
+    public HttpResponse<Video> incrementVideoView(@PathVariable @NonNull @NotBlank String videoId) {
         LOGGER.info("Received /{videoId}/view POST request");
         try {
             var video = videoService.incrementVideoView(UUID.fromString(videoId));

@@ -1,10 +1,11 @@
 package cctv.video.service.service;
 
+import cctv.video.service.constraints.NullOrNotBlank;
 import cctv.video.service.domain.Video;
 import cctv.video.service.mapper.VideoMapper;
 import io.micronaut.core.annotation.NonNull;
-import io.micronaut.core.annotation.Nullable;
 import jakarta.inject.Singleton;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.http.SdkHttpResponse;
@@ -27,7 +28,7 @@ public class VideoService {
         this.dynamoDbClient = dynamoDbClient;
     }
 
-    public void storeVideo(@NonNull Video video) {
+    public void storeVideo(@NonNull @Valid Video video) {
         Map<String, AttributeValue> item = videoMapper.mapVideoToDynamoDbItem(video);
 
         PutItemRequest request = PutItemRequest.builder()
@@ -60,7 +61,10 @@ public class VideoService {
     }
 
     @NonNull
-    public Set<Video> getVideos(@Nullable String uploader, @Nullable String search) {
+    public Set<Video> getVideos(
+            @NullOrNotBlank String uploader,
+            @NullOrNotBlank String search
+    ) {
 
         Map<String, AttributeValue> expressionValues = new HashMap<>();
 
@@ -68,12 +72,12 @@ public class VideoService {
                 .tableName(DYNAMODB_TABLE_NAME);
 
         boolean filtered = false;
-        if (uploader != null && !uploader.isBlank()) {
+        if (uploader != null) {
             scanRequestBuilder.filterExpression("Uploader = :uploader");
             expressionValues.put(":uploader", AttributeValue.fromS(uploader));
             filtered = true;
         }
-        if (search != null && !search.isBlank()) {
+        if (search != null) {
             scanRequestBuilder.filterExpression("contains(Title,:search)");
             expressionValues.put(":search", AttributeValue.fromS(search));
             filtered = true;

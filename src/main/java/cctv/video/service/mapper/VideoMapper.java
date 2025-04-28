@@ -16,18 +16,24 @@ public class VideoMapper {
 
     @NonNull
     public Video mapDynamoDbItemToVideo(@NonNull @NotEmpty Map<String, AttributeValue> item) {
-        return new Video(
-                UUID.fromString(item.get("VideoId").s()),
-                item.get("Title").s(),
-                item.get("Description").s(),
-                item.get("Tags").ss(),
-                LocalDateTime.parse(item.get("CreationDateTime").s()),
-                item.get("Uploader").s(),
-                Integer.parseInt(item.get("ViewCount").n())
-        );
+        try {
+            return new Video(
+                    UUID.fromString(item.get("VideoId").s()),
+                    item.get("Title").s(),
+                    item.get("Description").s(),
+                    item.get("Tags").ss(),
+                    LocalDateTime.parse(item.get("CreationDateTime").s()),
+                    item.get("Uploader").s(),
+                    Integer.parseInt(item.get("ViewCount").n())
+            );
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Item input can't be mapped to a Video");
+        }
     }
 
-    public Map<String, AttributeValue> mapVideoToDynamoDbItem(Video video) {
+    @NonNull
+    @NotEmpty
+    public Map<String, AttributeValue> mapVideoToDynamoDbItem(@NonNull Video video) {
         Map<String, AttributeValue> item = new HashMap<>();
         item.put("VideoId", AttributeValue.fromS(video.videoId().toString()));
         item.put("Title", AttributeValue.fromS(video.title()));
