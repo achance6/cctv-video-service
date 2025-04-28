@@ -14,11 +14,11 @@ import java.util.UUID;
 @Serdeable
 @Introspected
 public record Video(
-        @NonNull UUID uuid,
+        @NonNull UUID videoId,
         @NonNull @NotBlank String title,
         @Nullable @NotBlank String description,
         @Nullable List<@NotBlank String> tags,
-        @NonNull LocalDateTime creationDate,
+        @NonNull LocalDateTime creationDateTime,
         @NonNull @NotBlank String uploader,
         @NonNull @PositiveOrZero Integer viewCount
 ) {

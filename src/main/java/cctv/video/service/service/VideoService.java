@@ -114,7 +114,7 @@ public class VideoService {
             return Optional.empty();
         }
         var video = videoOptional.get();
-        video = new Video(video.uuid(), video.title(), video.description(), video.tags(), video.creationDate(), video.uploader(),
+        video = new Video(video.videoId(), video.title(), video.description(), video.tags(), video.creationDateTime(), video.uploader(),
                 video.viewCount() + 1);
         storeVideo(video);
         return Optional.of(video);
