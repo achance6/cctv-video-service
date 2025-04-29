@@ -8,7 +8,6 @@ import io.micronaut.http.HttpResponse;
 import io.micronaut.http.HttpStatus;
 import io.micronaut.http.annotation.*;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -26,9 +25,11 @@ public class VideoController {
     }
 
     @Get("/{videoId}")
-    public HttpResponse<Video> getVideo(@PathVariable @NonNull @NotBlank String videoId) {
+    public HttpResponse<Video> getVideo(
+            @PathVariable @NonNull UUID videoId
+    ) {
         LOGGER.info("Received /video GET request with videoId {}", videoId);
-        var video = videoService.getVideo(UUID.fromString(videoId));
+        var video = videoService.getVideo(videoId);
         if (video.isEmpty()) {
             return HttpResponse.notFound();
         }
@@ -36,16 +37,20 @@ public class VideoController {
     }
 
     @Delete("/{videoId}")
-    public HttpResponse<String> deleteVideo(@PathVariable @NonNull @NotBlank String videoId) {
+    public HttpResponse<String> deleteVideo(
+            @PathVariable @NonNull UUID videoId
+    ) {
         LOGGER.info("Received /video DELETE request with videoId {}", videoId);
-        var sdkHttpResponse = videoService.deleteVideo(UUID.fromString(videoId));
-        if (sdkHttpResponse.isSuccessful()) {
-            return HttpResponse.ok("Video with id " + videoId + " deleted");
-        }
+        var sdkHttpResponse = videoService.deleteVideo(videoId);
+
         if (sdkHttpResponse.statusCode() == HttpStatus.NOT_FOUND.getCode()) {
             return HttpResponse.notFound();
         }
-        return HttpResponse.serverError(sdkHttpResponse.toString());
+        if (!sdkHttpResponse.isSuccessful()) {
+            return HttpResponse.serverError(sdkHttpResponse.toString());
+        }
+
+        return HttpResponse.ok("Video with ID " + videoId + " deleted");
     }
 
     @Get("/videos")
@@ -62,7 +67,9 @@ public class VideoController {
     }
 
     @Post
-    public HttpResponse<Video> storeVideo(@Valid @Body Video video) {
+    public HttpResponse<Video> storeVideo(
+            @Valid @Body Video video
+    ) {
         LOGGER.info("Received /video POST request with video: {}", video);
         try {
             videoService.storeVideo(video);
@@ -74,10 +81,12 @@ public class VideoController {
     }
 
     @Post("/{videoId}/view")
-    public HttpResponse<Video> incrementVideoView(@PathVariable @NonNull @NotBlank String videoId) {
+    public HttpResponse<Video> incrementVideoView(
+            @PathVariable @NonNull UUID videoId
+    ) {
         LOGGER.info("Received /{videoId}/view POST request");
         try {
-            var video = videoService.incrementVideoView(UUID.fromString(videoId));
+            var video = videoService.incrementVideoView(videoId);
             if (video.isEmpty()) {
                 return HttpResponse.notFound();
             }
