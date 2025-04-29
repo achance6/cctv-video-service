@@ -1,4 +1,4 @@
-package cctv.video.service;
+package cctv.video;
 
 import cctv.video.service.domain.Video;
 import com.amazonaws.services.lambda.runtime.events.APIGatewayV2HTTPEvent;
@@ -21,8 +21,8 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 @MicronautTest
-class VideoControllerTest {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VideoControllerTest.class);
+class VideoServiceTest {
+    private static final Logger LOGGER = LoggerFactory.getLogger(VideoServiceTest.class);
     private static final UUID uuid = UUID.randomUUID();
     private static APIGatewayV2HTTPEventFunction handler;
 
