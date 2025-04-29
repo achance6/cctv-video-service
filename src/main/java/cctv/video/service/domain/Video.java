@@ -1,8 +1,8 @@
 package cctv.video.service.domain;
 
+import cctv.video.service.constraints.NullOrNotBlank;
 import io.micronaut.core.annotation.Introspected;
 import io.micronaut.core.annotation.NonNull;
-import io.micronaut.core.annotation.Nullable;
 import io.micronaut.serde.annotation.Serdeable;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.PositiveOrZero;
@@ -15,11 +15,11 @@ import java.util.UUID;
 @Introspected
 public record Video(
         @NonNull UUID videoId,
-        @NonNull @NotBlank String title,
-        @Nullable @NotBlank String description,
-        @Nullable List<@NotBlank String> tags,
+        @NotBlank String title,
+        @NullOrNotBlank String description,
+        @NonNull List<@NotBlank String> tags,
         @NonNull LocalDateTime creationDateTime,
-        @NonNull @NotBlank String uploader,
+        @NotBlank String uploader,
         @NonNull @PositiveOrZero Integer viewCount
 ) {
 
